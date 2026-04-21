@@ -1,0 +1,4 @@
+[
+  { "id": 1, "username": "admin", "password": "$2a$10$N9qo8uLOickgx2ZMRZoMy.Mr/.cZqF5XqT5XqT5XqT5XqT5XqT5Xq", "role": "ADM", "email": "admin@auravp.com", "created": "2026-04-21T00:00:00Z", "expires": "2026-12-31T23:00:00Z" },
+  { "id": 2, "username": "Mamigue", "password": "$2a$10$N9qo8uLOickgx2ZMRZoMy.Mr/.cZqF5XqT5XqT5XqT5XqT5XqT5Xq", "role": "VENDOR", "email": "mfilipequibamba@gmail.com", "created": "2026-04-21T00:00:00Z", "expires": "2026-04-26T23:00:00Z" }
+]

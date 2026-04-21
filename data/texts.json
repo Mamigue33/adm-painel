@@ -1,0 +1,6 @@
+{
+  "LBL_BTN_START": { "pt": "INICIAR", "en": "START" },
+  "LBL_BTN_STOP": { "pt": "PARAR", "en": "STOP" },
+  "LBL_DISCONNECTED": { "pt": "Desconectado", "en": "Disconnected" },
+  "LBL_CHOOSE_CONFIG": { "pt": "ESCOLHA UMA CONFIGURAÇÃO", "en": "CHOOSE A CONFIGURATION" }
+}

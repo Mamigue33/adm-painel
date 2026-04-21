@@ -1,0 +1,9 @@
+{
+  "base": "AuraVP",
+  "name": "AuraVP",
+  "package": "com.auravp.app",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "logoUrl": "",
+  "offlinePack": []
+}
