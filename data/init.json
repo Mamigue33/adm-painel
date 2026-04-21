@@ -1,0 +1,19 @@
+{
+  "users": [
+    { "id": 1, "username": "admin", "password": "$2a$10$N9qo8uLOickgx2ZMRZoMy.Mr/.cZqF5XqT5XqT5XqT5XqT5XqT5Xq", "role": "ADM", "email": "admin@auravp.com", "created": "2026-04-20T23:00:00Z", "expires": "2026-12-31T23:00:00Z" },
+    { "id": 2, "username": "Mamigue", "password": "$2a$10$N9qo8uLOickgx2ZMRZoMy.Mr/.cZqF5XqT5XqT5XqT5XqT5XqT5Xq", "role": "VENDOR", "email": "mfilipequibamba@gmail.com", "created": "2026-04-20T23:00:00Z", "expires": "2026-04-25T23:00:00Z" }
+  ],
+  "configs": [],
+  "categories": [],
+  "cdnList": [],
+  "texts": {
+    "LBL_BTN_START": { "pt": "INICIAR", "en": "START" },
+    "LBL_BTN_STOP": { "pt": "PARAR", "en": "STOP" },
+    "LBL_DISCONNECTED": { "pt": "Desconectado", "en": "Disconnected" },
+    "LBL_CHOOSE_CONFIG": { "pt": "ESCOLHA UMA CONFIGURAÇÃO", "en": "CHOOSE A CONFIGURATION" }
+  },
+  "themes": [],
+  "notifications": [],
+  "devices": [],
+  "sessions": []
+}

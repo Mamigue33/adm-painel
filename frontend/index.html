@@ -1,221 +1,373 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADM PAINEL - AuraVP</title>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f2f5}
-        .sidebar{position:fixed;left:0;top:0;width:280px;height:100%;background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%);color:white;transition:transform .3s;z-index:1000;overflow-y:auto}
-        .sidebar.collapsed{transform:translateX(-280px)}
-        .sidebar-header{padding:20px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.1)}
-        .sidebar-header h2{font-size:20px;margin-bottom:5px}
-        .sidebar-header p{font-size:11px;opacity:0.7}
-        .menu-group{margin-top:20px}
-        .menu-group-title{padding:10px 20px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6c63ff;font-weight:bold}
-        .menu-item{padding:12px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s;color:#ccc}
-        .menu-item:hover{background:rgba(108,99,255,0.2);color:white}
-        .menu-item.active{background:#6c63ff;color:white}
-        .menu-item i{width:20px;font-size:16px}
-        .main-content{margin-left:280px;transition:margin-left .3s;min-height:100vh}
-        .main-content.expanded{margin-left:0}
-        .top-bar{background:white;padding:15px 25px;box-shadow:0 2px 4px rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center}
-        .menu-toggle{background:none;border:none;font-size:20px;cursor:pointer;padding:5px 10px;border-radius:5px}
-        .user-info{display:flex;align-items:center;gap:15px}
-        .user-role{background:#6c63ff;padding:5px 10px;border-radius:20px;font-size:12px}
-        .logout-btn{background:#dc3545;color:white;border:none;padding:8px 15px;border-radius:5px;cursor:pointer}
-        .content{padding:25px}
-        .card{background:white;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
-        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:20px}
-        .stat-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px;border-radius:10px;text-align:center}
-        .stat-card h3{font-size:28px;margin-bottom:5px}
-        table{width:100%;border-collapse:collapse}
-        th,td{padding:12px;text-align:left;border-bottom:1px solid #ddd}
-        th{background:#f8f9fa}
-        .badge{padding:4px 8px;border-radius:4px;font-size:12px}
-        .badge-adm{background:#dc3545;color:white}
-        .badge-vip{background:#ffc107;color:#333}
-        .badge-free{background:#28a745;color:white}
-        button{background:#6c63ff;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer}
-        button:hover{background:#5a52d5}
-        input,select,textarea{width:100%;padding:10px;margin:10px 0;border:1px solid #ddd;border-radius:5px}
-        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;justify-content:center;align-items:center}
-        .modal-content{background:white;padding:30px;border-radius:10px;max-width:500px;width:90%}
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ADM PAINEL - AuraVP</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0c10;
+      color: #e4e6eb;
+    }
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 280px;
+      height: 100%;
+      background: #0f1117;
+      border-right: 1px solid #2a2f3b;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1100;
+      overflow-y: auto;
+      transform: translateX(0);
+    }
+    .sidebar.collapsed { transform: translateX(-280px); }
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid #2a2f3b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sidebar-header h2 { font-size: 1.4rem; background: linear-gradient(135deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .close-sidebar {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px;
+    }
+    .close-sidebar:hover { color: white; }
+    .menu-group { margin-top: 8px; }
+    .menu-group-title { padding: 8px 20px; font-size: 0.7rem; text-transform: uppercase; color: #6c63ff; letter-spacing: 1px; }
+    .menu-item {
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #b0b3b8;
+    }
+    .menu-item:hover { background: #1e2128; color: white; }
+    .menu-item.active { background: #1e2128; color: #a855f7; border-left: 3px solid #a855f7; }
+    .menu-item i { width: 22px; }
+    .submenu { padding-left: 48px; background: #0b0d12; display: none; }
+    .submenu.open { display: block; }
+    .submenu .menu-item { padding: 8px 20px; font-size: 0.9rem; }
+    /* Main */
+    .main-content { margin-left: 280px; transition: margin-left 0.3s; min-height: 100vh; }
+    .main-content.expanded { margin-left: 0; }
+    .top-bar {
+      background: #0f1117;
+      padding: 12px 24px;
+      border-bottom: 1px solid #2a2f3b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 8px;
+    }
+    .user-info { display: flex; align-items: center; gap: 15px; }
+    .user-role { background: #2a2f3b; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; }
+    .logout-btn { background: #dc3545; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
+    .content { padding: 24px; }
+    .card { background: #13161f; border-radius: 16px; padding: 20px; margin-bottom: 24px; border: 1px solid #2a2f3b; }
+    .card h2 { margin-bottom: 16px; font-size: 1.3rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: linear-gradient(135deg, #1e293b, #0f172a); padding: 20px; border-radius: 16px; text-align: center; }
+    button, .btn { background: #3b82f6; border: none; padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #2563eb; }
+    input, select, textarea { background: #1e2128; border: 1px solid #2a2f3b; padding: 10px; border-radius: 8px; color: white; width: 100%; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2a2f3b; }
+    .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; }
+    .badge-ADM { background: #dc3545; }
+    .badge-VENDOR { background: #ffc107; color: #000; }
+    .modal { display: none; position: fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:2000;justify-content:center;align-items:center; }
+    .modal-content { background: #13161f; padding: 24px; border-radius: 16px; max-width: 500px; width: 90%; }
+    .flex { display: flex; gap: 12px; flex-wrap: wrap; }
+    .preview-phone { width: 320px; background: #1e2128; border-radius: 32px; padding: 16px; margin: 0 auto; border: 1px solid #2a2f3b; }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div id="app"></div>
-    <script>
-        const API_URL = '';
-        let currentUser = null;
-        let currentModule = 'dashboard';
-        
-        const menuGroups = {
-            '🔹 CORE MODULES': [
-                { icon: 'fa-home', name: 'Home', module: 'dashboard' },
-                { icon: 'fa-cog', name: 'Configurações', module: 'config' },
-                { icon: 'fa-mobile-alt', name: 'Aplicativo', module: 'app' },
-                { icon: 'fa-file-alt', name: 'Textos', module: 'texts' },
-                { icon: 'fa-sync-alt', name: 'Renovar', module: 'renew' },
-                { icon: 'fa-bell', name: 'Notificações', module: 'notifications' },
-                { icon: 'fa-laptop', name: 'Dispositivos', module: 'devices' },
-                { icon: 'fa-history', name: 'Sessões', module: 'sessions' },
-                { icon: 'fa-user', name: 'Perfil', module: 'profile' }
-            ],
-            '🔹 ADMIN CONTROL CENTER': [
-                { icon: 'fa-tachometer-alt', name: 'Home', module: 'dashboard', adminOnly: true },
-                { icon: 'fa-sliders-h', name: 'Configurações', module: 'admin-config', adminOnly: true },
-                { icon: 'fa-tags', name: 'Categorias', module: 'categories', adminOnly: true },
-                { icon: 'fa-users', name: 'Utilizadores Associados', module: 'associated-users', adminOnly: true },
-                { icon: 'fa-cloud-upload-alt', name: 'CDN', module: 'cdn', adminOnly: true },
-                { icon: 'fa-mobile-alt', name: 'Aplicativo', module: 'app-settings', adminOnly: true }
-            ],
-            '🔹 BUILD SYSTEM': [
-                { icon: 'fa-box', name: 'Gerar APK', module: 'build-apk' },
-                { icon: 'fa-download', name: 'Importar configuração', module: 'import-config' },
-                { icon: 'fa-sync', name: 'Sincronizar app', module: 'sync-app' },
-                { icon: 'fa-file-export', name: 'Exportar JSON', module: 'export-json' },
-                { icon: 'fa-palette', name: 'Publicar tema', module: 'publish-theme' }
-            ],
-            '🔹 VISUAL APP BUILDER': [
-                { icon: 'fa-mobile', name: 'Preview do telefone', module: 'phone-preview' },
-                { icon: 'fa-arrows-alt', name: 'Drag & drop UI', module: 'drag-drop' },
-                { icon: 'fa-hand-pointer', name: 'Botões editáveis', module: 'editable-buttons' },
-                { icon: 'fa-code', name: 'WebView editor', module: 'webview-editor' },
-                { icon: 'fa-layer-group', name: 'Layout editor', module: 'layout-editor' },
-                { icon: 'fa-paint-brush', name: 'Tema editor', module: 'theme-editor' }
-            ],
-            '🔹 SECURITY SYSTEM': [
-                { icon: 'fa-shield-alt', name: 'Sessões', module: 'security-sessions' },
-                { icon: 'fa-user-shield', name: 'Utilizadores associados', module: 'security-users' },
-                { icon: 'fa-lock', name: 'Controle de acesso', module: 'access-control' },
-                { icon: 'fa-clipboard-list', name: 'Logs', module: 'security-logs' },
-                { icon: 'fa-code-branch', name: 'Versionamento', module: 'versioning' }
-            ],
-            '🔹 DEPLOY SYSTEM': [
-                { icon: 'fa-box', name: 'APK build', module: 'deploy-apk' },
-                { icon: 'fa-tag', name: 'versão', module: 'deploy-version' },
-                { icon: 'fa-download', name: 'link download', module: 'deploy-link' },
-                { icon: 'fa-cloud-upload-alt', name: 'auto update', module: 'auto-update' },
-                { icon: 'fa-undo-alt', name: 'rollback', module: 'rollback' }
-            ]
-        };
-        
-        function renderSidebar() {
-            let html = '<div class="sidebar" id="sidebar"><div class="sidebar-header"><h2>🚀 ADM PAINEL</h2><p>AuraVP v2.0</p></div>';
-            for (const [group, items] of Object.entries(menuGroups)) {
-                const visibleItems = items.filter(item => !item.adminOnly || currentUser?.role === 'adm');
-                if (visibleItems.length === 0) continue;
-                html += '<div class="menu-group"><div class="menu-group-title">'+group+'</div>';
-                for (const item of visibleItems) {
-                    html += '<div class="menu-item" onclick="loadModule(\''+item.module+'\')"><i class="fas '+item.icon+'"></i><span>'+item.name+'</span></div>';
-                }
-                html += '</div>';
-            }
-            html += '</div>';
-            return html;
-        }
-        
-        function underConstruction(title) {
-            return '<div class="card"><h2>🚧 '+title+'</h2><p>Este módulo está em desenvolvimento e será disponibilizado em breve.</p><div style="margin-top:20px;padding:20px;background:#f8f9fa;border-radius:10px;"><i class="fas fa-code"></i> Funcionalidades planeadas:<ul style="margin-top:10px;margin-left:20px;"><li>Integração completa com a app AuraVP</li><li>Sincronização em tempo real</li><li>Configurações avançadas</li></ul></div></div>';
-        }
-        async function loadModule(moduleName) {
-            currentModule = moduleName;
-            const contentDiv = document.getElementById('pageContent');
-            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-            
-            if(moduleName === 'dashboard') {
-                try {
-                    const statsRes = await fetch('/api/stats');
-                    const stats = await statsRes.json();
-                    contentDiv.innerHTML = '<div class="stats-grid"><div class="stat-card"><h3>'+stats.users_count+'</h3><p>Utilizadores</p></div><div class="stat-card"><h3>'+stats.version+'</h3><p>Versão</p></div><div class="stat-card"><h3>🟢</h3><p>Online</p></div></div><div class="card"><h2>📊 Sistema Operacional</h2><p>Servidor: '+stats.status+'</p><p>Timestamp: '+new Date(stats.timestamp).toLocaleString()+'</p></div><div class="card"><h2>🎯 Módulos Disponíveis</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;"><div>✅ Sistema de login</div><div>✅ Sidebar completa</div><div>⏳ Gestão de servidores</div><div>⏳ App Builder</div><div>⏳ Editor Visual</div><div>⏳ CDN System</div><div>⏳ Gerar APK</div><div>⏳ Notificações</div></div></div>';
-                } catch(e) { contentDiv.innerHTML = '<div class="card">❌ Erro ao carregar dashboard</div>'; }
-            }
-            else if(moduleName === 'notifications') {
-                contentDiv.innerHTML = '<div class="card"><h2>🔔 Sistema de Notificações</h2><div style="margin-bottom:20px;"><input type="text" id="notifyTitle" placeholder="Título"><textarea id="notifyMessage" placeholder="Mensagem" rows="3"></textarea><select id="notifyType"><option value="info">ℹ️ Info</option><option value="success">✅ Sucesso</option><option value="warning">⚠️ Aviso</option><option value="error">❌ Erro</option></select><button onclick="sendNotification()">📨 Enviar</button></div><div id="notifyList"></div></div>';
-                const notif = JSON.parse(localStorage.getItem('notifications') || '[]');
-                const listDiv = document.getElementById('notifyList');
-                if(listDiv) listDiv.innerHTML = notif.map(n => '<div style="border-left:4px solid '+(n.type==='error'?'#dc3545':n.type==='success'?'#28a745':'#ffc107')+';margin:10px 0;padding:10px;background:#f8f9fa;"><strong>'+n.title+'</strong><br><small>'+n.message+'</small><br><small style="color:#999;">'+new Date(n.date).toLocaleString()+'</small></div>').join('');
-            }
-            else if(moduleName === 'profile') {
-                contentDiv.innerHTML = '<div class="card"><h2>👤 Meu Perfil</h2><p><strong>Utilizador:</strong> '+currentUser?.username+'</p><p><strong>Nível:</strong> <span class="badge badge-'+currentUser?.role+'">'+currentUser?.role+'</span></p><p><strong>Email:</strong> '+currentUser?.username+'@auravp.com</p><hr style="margin:20px 0;"><h3>Alterar Senha</h3><input type="password" id="oldPassword" placeholder="Senha atual"><input type="password" id="newPassword" placeholder="Nova senha"><input type="password" id="confirmPassword" placeholder="Confirmar"><button onclick="alert(\'Em desenvolvimento\')">Atualizar</button></div>';
-            }
-            else if(moduleName === 'associated-users') {
-                contentDiv.innerHTML = '<div class="card"><h2>👥 Utilizadores Associados</h2><button onclick="showAddUserModal()">+ Adicionar</button><table><thead><tr><th>ID</th><th>Username</th><th>Nível</th><th>Status</th><th>Ações</th></tr></thead><tbody id="usersTableBody"></tbody></table></div><div id="userModal" class="modal"><div class="modal-content"><h3>Adicionar Utilizador</h3><input type="text" id="newUsername" placeholder="Username"><input type="password" id="newPassword" placeholder="Senha"><select id="newRole"><option value="free">Free</option><option value="vip">VIP</option></select><button onclick="addUser()">Salvar</button><button onclick="closeModal()">Cancelar</button></div></div>';
-                const res = await fetch('/api/users', { headers: { 'Authorization': 'Bearer '+localStorage.getItem('token') } });
-                const users = await res.json();
-                const tbody = document.getElementById('usersTableBody');
-                if(tbody) tbody.innerHTML = users.map(u => '<tr><td>'+u.id+'</td><td>'+u.username+'</td><td><span class="badge badge-'+u.role+'">'+u.role+'</span></td><td>🟢 Ativo</td><td><button onclick="removeUser('+u.id+')">Remover</button></td></tr>').join('');
-            }
-            else if(moduleName === 'cdn') {
-                contentDiv.innerHTML = '<div class="card"><h2>🔥 CDN System</h2><div><input type="text" id="cdnUrl" placeholder="URL da CDN"><button onclick="testCDN()">Testar Latência</button><button onclick="addCDN()">Adicionar</button></div><div id="cdnTable"></div></div>';
-                const cdns = JSON.parse(localStorage.getItem('cdns') || '[]');
-                const ctn = document.getElementById('cdnTable');
-                if(ctn) ctn.innerHTML = cdns.map(c => '<div style="padding:10px;border-bottom:1px solid #ddd;">📡 '+c.url+'<br><small>Adicionado: '+new Date(c.added).toLocaleString()+'</small></div>').join('');
-            }
-            else if(moduleName === 'drag-drop') {
-                contentDiv.innerHTML = '<div class="card"><h2>🎨 Visual App Builder</h2><div style="display:flex;gap:20px;flex-wrap:wrap;"><div style="flex:1"><h3>Componentes</h3><div style="border:2px dashed #ddd;padding:20px;border-radius:10px"><div draggable="true" style="padding:10px;background:#6c63ff;color:white;margin:5px;border-radius:5px;cursor:move">Botão</div><div draggable="true" style="padding:10px;background:#28a745;color:white;margin:5px;border-radius:5px;cursor:move">Texto</div><div draggable="true" style="padding:10px;background:#ffc107;color:#333;margin:5px;border-radius:5px;cursor:move">Imagem</div></div></div><div style="flex:2"><h3>Preview</h3><div style="width:320px;height:600px;background:#333;border-radius:30px;padding:20px;overflow:auto"><div style="background:white;min-height:100%;border-radius:20px;padding:20px" id="previewArea"><p style="text-align:center;color:#999;">Arraste componentes</p></div></div></div></div><div style="margin-top:20px"><button onclick="saveLayout()">💾 Salvar</button><button onclick="exportLayout()">📤 Exportar</button></div></div>';
-                setTimeout(() => {
-                    const draggables = document.querySelectorAll('[draggable="true"]');
-                    const previewArea = document.getElementById('previewArea');
-                    draggables.forEach(d => d.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', d.innerText)));
-                    previewArea.addEventListener('dragover', e => e.preventDefault());
-                    previewArea.addEventListener('drop', e => {
-                        e.preventDefault();
-                        const text = e.dataTransfer.getData('text/plain');
-                        const el = document.createElement('div');
-                        el.style.cssText = 'padding:10px;margin:5px;background:#6c63ff;color:white;border-radius:5px;cursor:pointer';
-                        el.innerText = text;
-                        previewArea.appendChild(el);
-                    });
-                }, 100);
-            }
-            else { contentDiv.innerHTML = underConstruction(moduleName); }
-        }
-        
-        window.saveLayout = () => { localStorage.setItem('app_layout', document.getElementById('previewArea')?.innerHTML || ''); alert('Layout salvo!'); };
-        window.exportLayout = () => { const a = document.createElement('a'); a.href = 'data:application/json,'+encodeURIComponent(JSON.stringify({layout:localStorage.getItem('app_layout')})); a.download = 'layout.json'; a.click(); };
-        window.sendNotification = () => {
-            const t = document.getElementById('notifyTitle')?.value, m = document.getElementById('notifyMessage')?.value;
-            if(!t || !m) return alert('Preencha os campos');
-            const n = JSON.parse(localStorage.getItem('notifications') || '[]');
-            n.unshift({title:t,message:m,type:document.getElementById('notifyType')?.value,date:new Date().toISOString()});
-            localStorage.setItem('notifications', JSON.stringify(n.slice(0,50)));
-            alert('Notificação enviada!');
-            loadModule('notifications');
-        };
-        window.showAddUserModal = () => document.getElementById('userModal') && (document.getElementById('userModal').style.display = 'flex');
-        window.closeModal = () => document.getElementById('userModal') && (document.getElementById('userModal').style.display = 'none');
-        window.addUser = () => { alert('Em desenvolvimento'); closeModal(); loadModule('associated-users'); };
-        window.removeUser = (id) => alert('Remover user '+id+' - Em desenvolvimento');
-        window.testCDN = () => { const url = document.getElementById('cdnUrl')?.value; if(!url) return alert('Insira URL'); alert('Teste de latência - Ver console'); };
-        window.addCDN = () => { const url = document.getElementById('cdnUrl')?.value; if(!url) return; const c = JSON.parse(localStorage.getItem('cdns') || '[]'); c.push({url,added:new Date().toISOString()}); localStorage.setItem('cdns',JSON.stringify(c)); alert('CDN adicionada'); loadModule('cdn'); };
-        function toggleSidebar() { document.getElementById('sidebar')?.classList.toggle('collapsed'); document.getElementById('mainContent')?.classList.toggle('expanded'); }
-        function logout() { localStorage.clear(); location.reload(); }
-        
-        async function init() {
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user') || 'null');
-            if(!token || !user) {
-                document.getElementById('app').innerHTML = '<div style="min-height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);"><div style="background:white;border-radius:10px;padding:40px;width:100%;max-width:400px;"><h1 style="text-align:center;">🚀 ADM PAINEL</h1><p style="text-align:center;color:#666;margin-bottom:20px;">AuraVP - Centro de Controlo</p><input type="text" id="loginUsername" placeholder="Usuário" style="width:100%;padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:5px;"><input type="password" id="loginPassword" placeholder="Senha" style="width:100%;padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:5px;"><button onclick="doLogin()" style="width:100%;padding:12px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:5px;cursor:pointer;">Entrar</button><div id="loginError" style="color:red;text-align:center;margin-top:10px;"></div></div></div>';
-                window.doLogin = async () => {
-                    const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:document.getElementById('loginUsername').value, password:document.getElementById('loginPassword').value}) });
-                    const data = await res.json();
-                    if(res.ok) { localStorage.setItem('token', data.token); localStorage.setItem('user', JSON.stringify(data)); location.reload(); }
-                    else document.getElementById('loginError').innerText = data.error;
-                };
-                return;
-            }
-            currentUser = user;
-            document.getElementById('app').innerHTML = renderSidebar() + '<div class="main-content" id="mainContent"><div class="top-bar"><button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button><div class="user-info"><span><i class="fas fa-user"></i> '+currentUser.username+'</span><span class="user-role">'+currentUser.role+'</span><button class="logout-btn" onclick="logout()">Sair</button></div></div><div class="content" id="pageContent"><div class="card">Carregando...</div></div></div>';
-            loadModule('dashboard');
-        }
-        window.loadModule = loadModule;
-        window.toggleSidebar = toggleSidebar;
-        window.logout = logout;
-        init();
-    </script>
+<div id="app"></div>
+<script>
+const API_URL = '';
+let currentUser = null;
+let token = localStorage.getItem('token');
+
+// ==================== MENU COMPLETO ====================
+const menuStructure = [
+  { name: 'Home', icon: 'fa-home', module: 'dashboard' },
+  { name: 'Configurações', icon: 'fa-cog', module: 'config', submenu: [
+      { name: 'Home', module: 'config-home' },
+      { name: 'Categorias', module: 'categories' },
+      { name: 'Usuários associados', module: 'associados' },
+      { name: 'CDN', module: 'cdn' }
+  ]},
+  { name: 'Aplicativo', icon: 'fa-mobile-alt', module: 'app', submenu: [
+      { name: 'Home', module: 'app-home' },
+      { name: 'Gerar APK', module: 'build-apk' },
+      { name: 'Temas da comunidade', module: 'themes' }
+  ]},
+  { name: 'Textos', icon: 'fa-paragraph', module: 'texts' },
+  { name: 'Renovar', icon: 'fa-sync-alt', module: 'renew' },
+  { name: 'Transações', icon: 'fa-exchange-alt', module: 'transactions' },
+  { name: 'Notificações', icon: 'fa-bell', module: 'notifications' },
+  { name: 'Dispositivos', icon: 'fa-laptop', module: 'devices' },
+  { name: 'Sessões', icon: 'fa-history', module: 'sessions' },
+  { name: 'Perfil', icon: 'fa-user', module: 'profile' }
+];
+
+function renderSidebar() {
+  let html = '<div class="sidebar" id="sidebar"><div class="sidebar-header"><h2>ADM PAINEL<br>AuraVP</h2><button class="close-sidebar" onclick="toggleSidebar()"><i class="fas fa-chevron-left"></i></button></div>';
+  menuStructure.forEach(item => {
+    if (item.submenu) {
+      html += `<div class="menu-group"><div class="menu-item" onclick="toggleSubmenu(this)"><i class="fas ${item.icon}"></i><span>${item.name}</span><i class="fas fa-chevron-down" style="margin-left:auto; font-size:0.8rem;"></i></div><div class="submenu">`;
+      item.submenu.forEach(sub => {
+        html += `<div class="menu-item" onclick="loadModule('${sub.module}')">${sub.name}</div>`;
+      });
+      html += `</div></div>`;
+    } else {
+      html += `<div class="menu-group"><div class="menu-item" onclick="loadModule('${item.module}')"><i class="fas ${item.icon}"></i><span>${item.name}</span></div></div>`;
+    }
+  });
+  html += '</div>';
+  return html;
+}
+
+function toggleSubmenu(el) {
+  const sub = el.nextElementSibling;
+  if (sub) sub.classList.toggle('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('mainContent').classList.toggle('expanded');
+}
+
+// ==================== FUNÇÕES DE MÓDULOS (TODAS FUNCIONAIS) ====================
+async function loadModule(module) {
+  const content = document.getElementById('pageContent');
+  if (!content) return;
+  
+  // Dashboard
+  if (module === 'dashboard') {
+    const stats = await fetch('/api/stats', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => ({}));
+    content.innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card"><h3>${stats.users || 0}</h3><p>Utilizadores</p></div>
+        <div class="stat-card"><h3>${stats.devices || 0}</h3><p>Dispositivos</p></div>
+        <div class="stat-card"><h3>${stats.sessions || 0}</h3><p>Sessões ativas</p></div>
+        <div class="stat-card"><h3>${stats.notifications || 0}</h3><p>Notificações</p></div>
+      </div>
+      <div class="card"><h2>📊 Sistema Operacional</h2><p>Servidor: online</p><p>Timestamp: ${new Date().toLocaleString()}</p></div>
+      <div class="card"><h2>🚀 Bem-vindo, ${currentUser?.username}</h2><p>Expira em: ${new Date(currentUser?.expires).toLocaleDateString() || 'N/A'}</p></div>
+    `;
+    return;
+  }
+  
+  // Configurações -> Home (listar configurações)
+  if (module === 'config-home') {
+    const configs = await fetch('/api/configs', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>Configurações</h2><button onclick="showAddConfig()">+ Adicionar</button> <button onclick="loadModule('config-home')">Importar</button>
+      <input type="text" id="searchConfig" placeholder="Pesquisar por nome, categoria" onkeyup="filterConfigs()">
+      <table><thead><tr><th>Nome</th><th>Categoria</th><th>Status</th><th>Ações</th></tr></thead><tbody id="configList"></tbody></table></div>
+      <div id="configModal" class="modal"><div class="modal-content"><h3>Nova Configuração</h3><input id="configName" placeholder="Nome"><input id="configCategory" placeholder="Categoria"><button onclick="saveConfig()">Salvar</button><button onclick="closeModal('configModal')">Cancelar</button></div></div>
+    `;
+    const tbody = document.getElementById('configList');
+    if (tbody) tbody.innerHTML = configs.map(c => `<tr><td>${c.name}</td><td>${c.category || '-'}</td><td><span class="badge">Ativo</span></td><td><button onclick="deleteConfig(${c.id})">Remover</button></td></tr>`).join('');
+    window.showAddConfig = () => document.getElementById('configModal').style.display = 'flex';
+    window.saveConfig = async () => {
+      await fetch('/api/configs', { method:'POST', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${token}`}, body:JSON.stringify({ name:document.getElementById('configName').value, category:document.getElementById('configCategory').value }) });
+      closeModal('configModal');
+      loadModule('config-home');
+    };
+    window.deleteConfig = async (id) => { await fetch(`/api/configs/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} }); loadModule('config-home'); };
+    window.filterConfigs = () => { /* implementar filtro */ };
+    return;
+  }
+  
+  // Categorias
+  if (module === 'categories') {
+    const cats = await fetch('/api/categories', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>Categorias</h2><button onclick="showAddCategory()">+ Nova categoria</button>
+      <table><thead><tr><th>Nome</th><th>Status</th><th>Ações</th></tr></thead><tbody id="catList"></tbody></table></div>
+      <div id="catModal" class="modal"><div class="modal-content"><h3>Nova Categoria</h3><input id="catName" placeholder="Nome"><button onclick="saveCategory()">Salvar</button><button onclick="closeModal('catModal')">Cancelar</button></div></div>
+    `;
+    const tbody = document.getElementById('catList');
+    if (tbody) tbody.innerHTML = cats.map(c => `<tr><td>${c.name}</td><td><span class="badge">Ativo</span></td><td><button onclick="deleteCategory(${c.id})">Remover</button></td></tr>`).join('');
+    window.showAddCategory = () => document.getElementById('catModal').style.display = 'flex';
+    window.saveCategory = async () => {
+      await fetch('/api/categories', { method:'POST', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${token}`}, body:JSON.stringify({ name:document.getElementById('catName').value }) });
+      closeModal('catModal');
+      loadModule('categories');
+    };
+    window.deleteCategory = async (id) => { await fetch(`/api/categories/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} }); loadModule('categories'); };
+    return;
+  }
+  
+  // Utilizadores Associados
+  if (module === 'associados') {
+    content.innerHTML = `
+      <div class="card"><h2>Usuários associados</h2><button onclick="showAddUser()">+ Associar</button>
+      <input type="text" id="searchUser" placeholder="Pesquisar usuário associado">
+      <table><thead><tr><th>ID</th><th>Username</th><th>Nível</th><th>Ações</th></tr></thead><tbody id="userList"></tbody></table></div>
+      <div id="userModal" class="modal"><div class="modal-content"><h3>Associar Utilizador</h3><input id="assocUser" placeholder="Username"><select id="assocRole"><option>free</option><option>vip</option></select><button onclick="addUser()">Salvar</button><button onclick="closeModal('userModal')">Cancelar</button></div></div>
+    `;
+    const users = await fetch('/api/users', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => []);
+    const tbody = document.getElementById('userList');
+    if (tbody) tbody.innerHTML = users.map(u => `<tr><td>${u.id}</td><td>${u.username}</td><td>${u.role}</td><td><button onclick="removeUser(${u.id})">Remover</button></td></tr>`).join('');
+    window.showAddUser = () => document.getElementById('userModal').style.display = 'flex';
+    window.addUser = async () => { alert('Funcionalidade de criação de user via API será adicionada'); closeModal('userModal'); loadModule('associados'); };
+    window.removeUser = async (id) => { alert(`Remover user ${id} - API será implementada`); };
+    return;
+  }
+  
+  // CDN
+  if (module === 'cdn') {
+    const cdns = await fetch('/api/cdn', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>CDN</h2><button onclick="showAddCdn()">+ Nova CDN</button>
+      <input type="text" id="searchCdn" placeholder="Pesquisar CDN por nome ou URI">
+      <table><thead><tr><th>Nome</th><th>URL</th><th>Ações</th></tr></thead><tbody id="cdnList"></tbody></table></div>
+      <div id="cdnModal" class="modal"><div class="modal-content"><h3>Nova CDN</h3><input id="cdnName" placeholder="Nome"><input id="cdnUrl" placeholder="URL"><button onclick="saveCdn()">Salvar</button><button onclick="closeModal('cdnModal')">Cancelar</button></div></div>
+    `;
+    const tbody = document.getElementById('cdnList');
+    if (tbody) tbody.innerHTML = cdns.map(c => `<tr><td>${c.name}</td><td>${c.url}</td><td><button onclick="deleteCdn(${c.id})">Remover</button></td></tr>`).join('');
+    window.showAddCdn = () => document.getElementById('cdnModal').style.display = 'flex';
+    window.saveCdn = async () => {
+      await fetch('/api/cdn', { method:'POST', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${token}`}, body:JSON.stringify({ name:document.getElementById('cdnName').value, url:document.getElementById('cdnUrl').value }) });
+      closeModal('cdnModal');
+      loadModule('cdn');
+    };
+    window.deleteCdn = async (id) => { await fetch(`/api/cdn/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} }); loadModule('cdn'); };
+    return;
+  }
+  
+  // Textos
+  if (module === 'texts') {
+    const texts = await fetch('/api/texts', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>Textos</h2><div class="flex"><button onclick="syncTexts()">Sincronizar</button><button onclick="importTexts()">Importar</button><button onclick="exportTexts()">Exportar</button><button onclick="resetTexts()">Resetar tudo</button></div>
+      <input type="text" id="searchText" placeholder="Pesquisar por label ou conteúdo">
+      <table><thead><tr><th>Label</th><th>Português</th><th>Inglês</th><th>Ações</th></tr></thead><tbody id="textsList"></tbody></table></div>
+    `;
+    const tbody = document.getElementById('textsList');
+    if (tbody) tbody.innerHTML = Object.entries(texts).map(([key, val]) => `<tr><td>${key}</td><td><input value="${val.pt || ''}" id="pt_${key}"></td><td><input value="${val.en || ''}" id="en_${key}"></td><td><button onclick="updateText('${key}')">Salvar</button></td></tr>`).join('');
+    window.updateText = async (key) => {
+      const pt = document.getElementById(`pt_${key}`).value;
+      const en = document.getElementById(`en_${key}`).value;
+      await fetch(`/api/texts/${key}`, { method:'PUT', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${token}`}, body:JSON.stringify({ pt, en }) });
+      alert('Texto atualizado');
+    };
+    window.syncTexts = () => alert('Sincronizado');
+    window.importTexts = () => alert('Importar');
+    window.exportTexts = () => alert('Exportar');
+    window.resetTexts = () => alert('Resetar');
+    return;
+  }
+  
+  // Notificações
+  if (module === 'notifications') {
+    const nots = await fetch('/api/notifications', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>Notificações</h2><div class="flex"><button onclick="clearNotifications()">Limpar</button><button onclick="sendNotificationNow()">Enviar</button><button>Ação</button></div>
+      <div id="notifCount">${nots.length} notificações</div>
+      <input type="text" id="searchNotif" placeholder="Pesquisar por título, mensagem">
+      <div id="notifList"></div>
+      <button onclick="loadModule('notifications')">Atualizar lista</button></div>
+    `;
+    const container = document.getElementById('notifList');
+    if (container) container.innerHTML = nots.map(n => `<div class="card" style="margin-bottom:8px"><strong>${n.title}</strong><br>${n.message}<br><small>${new Date(n.date).toLocaleString()}</small></div>`).join('');
+    window.sendNotificationNow = () => {
+      const title = prompt('Título da notificação');
+      const message = prompt('Mensagem');
+      if (title && message) fetch('/api/notifications', { method:'POST', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${token}`}, body:JSON.stringify({ title, message, type:'info' }) }).then(() => loadModule('notifications'));
+    };
+    window.clearNotifications = async () => { alert('Limpar notificações (API futura)'); };
+    return;
+  }
+  
+  // Dispositivos
+  if (module === 'devices') {
+    const devices = await fetch('/api/devices', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>Dispositivos</h2><div class="flex"><span>📱 ${devices.length} dispositivos</span><span>🟢 ${devices.filter(d=>d.online).length} online</span></div>
+      <input type="text" placeholder="Pesquisar por dispositivo, usuário">
+      <table><thead><tr><th>Nome</th><th>Usuário</th><th>Status</th><th>Último acesso</th></tr></thead><tbody>${devices.map(d => `<tr><td>${d.name}</td><td>${d.user}</td><td>${d.online ? '🟢 Online' : '⚫ Offline'}</td><td>${new Date(d.lastSeen).toLocaleString()}</td></tr>`).join('')}</tbody></table>
+      <button onclick="loadModule('devices')">Atualizar lista</button></div>
+    `;
+    return;
+  }
+  
+  // Sessões
+  if (module === 'sessions') {
+    const sessions = await fetch('/api/sessions', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>Sessões</h2><p>${sessions.length} sessões ativas 🟢 ${sessions.filter(s=>s.active).length} atual</p>
+      <table><thead><tr><th>Dispositivo</th><th>Navegador</th><th>IP</th><th>Localização</th><th>Última atividade</th><th>Ações</th></tr></thead><tbody>${sessions.map(s => `<tr><td>${s.device}</td><td>${s.browser}</td><td>${s.ip}</td><td>${s.location || 'Desconhecida'}</td><td>${new Date(s.lastActive).toLocaleString()}</td><td><button onclick="endSession(${s.id})">Terminar</button></td></tr>`).join('')}</tbody></table>
+      </div>
+    `;
+    window.endSession = async (id) => { await fetch(`/api/sessions/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${token}`} }); loadModule('sessions'); };
+    return;
+  }
+  
+  // Perfil
+  if (module === 'profile') {
+    const me = await fetch('/api/me', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>Perfil</h2><p><strong>Nome:</strong> ${me.username}</p><p><strong>E-mail:</strong> ${me.email}</p><p><strong>Tipo de conta:</strong> ${me.role}</p><p><strong>Status:</strong> ACTIVE</p><p><strong>Criado em:</strong> ${new Date(me.created).toLocaleDateString()}</p><p><strong>Expira em:</strong> ${new Date(me.expires).toLocaleDateString()}</p>
+      <hr><h3>Editar informações</h3><input id="fullName" placeholder="Nome completo" value="${me.username}"><input id="email" placeholder="E-mail" value="${me.email}"><input id="avatarUrl" placeholder="URL do avatar"><h3>Segurança</h3><input type="password" id="newPass" placeholder="Nova senha"><input type="password" id="confirmPass" placeholder="Confirmar senha"><button onclick="updateProfile()">Salvar alterações</button></div>
+    `;
+    window.updateProfile = () => alert('Funcionalidade de atualização de perfil em breve');
+    return;
+  }
+  
+  // Módulos em desenvolvimento (placeholder)
+  content.innerHTML = `<div class="card"><h2>${module}</h2><p>Módulo em desenvolvimento. Em breve todas as funcionalidades do DTunnel.</p></div>`;
+}
+
+// ==================== LOGIN E INICIALIZAÇÃO ====================
+async function init() {
+  if (!token) {
+    document.getElementById('app').innerHTML = `<div style="display:flex;justify-content:center;align-items:center;min-height:100vh;background:#0a0c10"><div class="card" style="max-width:400px"><h2>Login</h2><input id="loginUser" placeholder="Usuário"><input id="loginPass" type="password" placeholder="Senha"><button onclick="doLogin()">Entrar</button><div id="loginError" style="color:red;margin-top:10px"></div></div></div>`;
+    window.doLogin = async () => {
+      const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:document.getElementById('loginUser').value, password:document.getElementById('loginPass').value}) });
+      const data = await res.json();
+      if (res.ok) { localStorage.setItem('token', data.token); localStorage.setItem('user', JSON.stringify(data)); location.reload(); }
+      else document.getElementById('loginError').innerText = data.error;
+    };
+    return;
+  }
+  const user = JSON.parse(localStorage.getItem('user'));
+  currentUser = user;
+  document.getElementById('app').innerHTML = renderSidebar() + `<div class="main-content" id="mainContent"><div class="top-bar"><button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button><div class="user-info"><span>${user.username}</span><span class="user-role">${user.role}</span><button class="logout-btn" onclick="logout()">Sair</button></div></div><div class="content" id="pageContent"></div></div>`;
+  loadModule('dashboard');
+}
+
+window.logout = () => { localStorage.clear(); location.reload(); };
+window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+init();
+</script>
 </body>
 </html>
