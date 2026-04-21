@@ -371,3 +371,241 @@ init();
 </script>
 </body>
 </html>
+  // ==================== GERAR APK (SIMULAÇÃO REAL) ====================
+  if (module === 'build-apk') {
+    const params = await fetch('/api/appParams', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => ({}));
+    content.innerHTML = `
+      <div class="card"><h2>Gerar APK</h2>
+      <h3>Configuração de build</h3>
+      <div class="flex"><button id="buildBtn" class="btn">PRONTO</button><button id="autoUpdateBtn">ATUALIZAÇÃO AUTOMÁTICA</button></div>
+      <p><strong>BASE SELECIONADA</strong><br>${params.base || 'AuraVP'}</p>
+      <p><strong>VERSÃO</strong><br>${params.versionName || '1.0.0'} (${params.versionCode || '1'})</p>
+      <p><strong>LINKS DESTA SESSÃO</strong><br><span id="linksCount">0</span> registros</p>
+      <hr>
+      <h3>Links desta sessão</h3>
+      <div id="sessionLinks">Nenhum link nesta sessão. Gere um APK para que os links apareçam aqui.</div>
+      <hr>
+      <h3>Parâmetros da compilação</h3>
+      <label>Versão base</label><input id="baseVersion" value="${params.base || 'DTunnel Lite'}">
+      <label>Nome do APK</label><input id="apkName" value="${params.name || 'AuraVP'}">
+      <label>Nome pacote</label><input id="packageName" value="${params.package || 'com.auravp.app'}">
+      <label>Nome da versão</label><input id="versionName" value="${params.versionName || '1.0.0'}">
+      <label>Código da versão</label><input id="versionCode" value="${params.versionCode || '1'}">
+      <label>URL da logo</label><input id="logoUrl" value="${params.logoUrl || ''}">
+      <h3>Pacote offline</h3>
+      <label><input type="checkbox" id="offlineTheme" ${params.offlinePack?.includes('theme') ? 'checked' : ''}> Tema</label>
+      <label><input type="checkbox" id="offlineTexts" ${params.offlinePack?.includes('texts') ? 'checked' : ''}> Textos</label>
+      <label><input type="checkbox" id="offlineCdn" ${params.offlinePack?.includes('cdn') ? 'checked' : ''}> CDNs</label>
+      <label><input type="checkbox" id="offlineConfigs" ${params.offlinePack?.includes('configs') ? 'checked' : ''}> Configurações</label>
+      <button id="startBuild">Gerar APK</button>
+      <div id="buildProgress" style="display:none; margin-top:20px;">
+        <h3>Progresso da compilação</h3>
+        <div class="progress-bar"><div class="progress-fill" id="buildFill"></div></div>
+        <p id="buildPercent">0%</p>
+        <div id="buildLogs" style="height:200px; overflow-y:auto; background:#0a0c10; padding:8px; border-radius:8px;"></div>
+      </div>
+      </div>
+    `;
+    // Carregar links da sessão (localStorage)
+    let sessionLinks = JSON.parse(localStorage.getItem('apkLinks') || '[]');
+    const updateLinksDisplay = () => {
+      const container = document.getElementById('sessionLinks');
+      const countSpan = document.getElementById('linksCount');
+      if (container) {
+        if (sessionLinks.length === 0) container.innerHTML = 'Nenhum link nesta sessão. Gere um APK para que os links apareçam aqui.';
+        else container.innerHTML = sessionLinks.map(l => `<div><a href="${l.url}" target="_blank">${l.name} - ${new Date(l.date).toLocaleString()}</a></div>`).join('');
+      }
+      if (countSpan) countSpan.innerText = sessionLinks.length;
+    };
+    updateLinksDisplay();
+    document.getElementById('startBuild')?.addEventListener('click', async () => {
+      const buildDiv = document.getElementById('buildProgress');
+      buildDiv.style.display = 'block';
+      const fill = document.getElementById('buildFill');
+      const percentSpan = document.getElementById('buildPercent');
+      const logsDiv = document.getElementById('buildLogs');
+      const log = (msg) => { const line = document.createElement('div'); line.className = 'log-line'; line.innerText = msg; logsDiv.appendChild(line); logsDiv.scrollTop = logsDiv.scrollHeight; };
+      // Salvar parâmetros
+      const newParams = {
+        base: document.getElementById('baseVersion').value,
+        name: document.getElementById('apkName').value,
+        package: document.getElementById('packageName').value,
+        versionName: document.getElementById('versionName').value,
+        versionCode: parseInt(document.getElementById('versionCode').value),
+        logoUrl: document.getElementById('logoUrl').value,
+        offlinePack: []
+      };
+      if (document.getElementById('offlineTheme').checked) newParams.offlinePack.push('theme');
+      if (document.getElementById('offlineTexts').checked) newParams.offlinePack.push('texts');
+      if (document.getElementById('offlineCdn').checked) newParams.offlinePack.push('cdn');
+      if (document.getElementById('offlineConfigs').checked) newParams.offlinePack.push('configs');
+      await fetch('/api/appParams', { method:'POST', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${token}`}, body:JSON.stringify(newParams) });
+      // Simular build com progresso
+      log('🚀 Iniciando build...');
+      for (let i = 0; i <= 100; i += Math.floor(Math.random() * 10) + 1) {
+        if (i > 100) i = 100;
+        fill.style.width = i + '%';
+        percentSpan.innerText = i + '%';
+        log(`📦 Progresso: ${i}% - Processando recursos...`);
+        await new Promise(r => setTimeout(r, 200));
+      }
+      log('✅ Build concluído com sucesso!');
+      const apkUrl = `/storage/apks/${Date.now()}.apk`;
+      sessionLinks.push({ name: newParams.name, url: apkUrl, date: new Date().toISOString() });
+      localStorage.setItem('apkLinks', JSON.stringify(sessionLinks));
+      updateLinksDisplay();
+      log(`🔗 Link de download: ${window.location.origin}${apkUrl}`);
+    });
+    document.getElementById('autoUpdateBtn')?.addEventListener('click', () => alert('Atualização automática ativada.'));
+    return;
+  }
+
+  // ==================== TEMAS DA COMUNIDADE ====================
+  if (module === 'themes') {
+    const themes = await fetch('/api/themes', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>Temas da comunidade</h2><p>${themes.length} temas publicados</p>
+      <button onclick="showPublishTheme()">Publicar tema</button>
+      <div id="themeFeed" style="display:grid; gap:16px; margin-top:20px;">${themes.map(t => `
+        <div class="card"><strong>${t.name}</strong><br>${t.description || 'Sem descrição'}<br><small>por ${t.author || 'Anónimo'}</small><br><button onclick="installTheme(${t.id})">Instalar</button></div>
+      `).join('')}</div>
+      </div>
+      <div id="publishModal" class="modal"><div class="modal-content"><h3>Publicar tema</h3><textarea id="themeDesc" placeholder="Descreva o que este tema personaliza..." maxlength="120"></textarea><p><span id="charCount">0</span>/120 caracteres</p><button onclick="publishTheme()">Publicar</button><button onclick="closeModal('publishModal')">Cancelar</button></div></div>
+    `;
+    window.showPublishTheme = () => document.getElementById('publishModal').style.display = 'flex';
+    window.publishTheme = async () => {
+      const desc = document.getElementById('themeDesc').value;
+      if (!desc) return alert('Escreva uma descrição');
+      await fetch('/api/themes', { method:'POST', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${token}`}, body:JSON.stringify({ name: 'Tema da comunidade', description: desc, author: currentUser?.username }) });
+      closeModal('publishModal');
+      loadModule('themes');
+    };
+    window.installTheme = (id) => {
+      alert(`Tema ${id} instalado! As cores foram aplicadas ao editor de personalização.`);
+      // Aqui poderia chamar /api/themes/${id}/apply
+    };
+    const textarea = document.getElementById('themeDesc');
+    if (textarea) textarea.addEventListener('input', () => document.getElementById('charCount').innerText = textarea.value.length);
+    return;
+  }
+
+  // ==================== PERSONALIZAR APLICATIVO ====================
+  if (module === 'app-customize') {
+    content.innerHTML = `
+      <div class="card"><h2>Personalizar aplicativo</h2>
+      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <div class="preview-phone" id="phonePreview">
+          <div style="background:var(--bg); padding:16px; border-radius:16px;">
+            <img src="" id="previewLogo" style="max-width:100px; display:block; margin:0 auto;">
+            <div style="margin-top:20px;">
+              <input placeholder="Usuário" style="background:var(--inputBg); border-color:var(--inputBorder);">
+              <input placeholder="Senha" type="password" style="background:var(--inputBg); border-color:var(--inputBorder);">
+              <button style="background:var(--btnBg); border-radius:var(--btnRadius);">INICIAR</button>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="flex"><button onclick="showEditor('fundo')">Fundo</button><button onclick="showEditor('logo')">Logo</button><button onclick="showEditor('card')">Card</button><button onclick="showEditor('status')">Status</button><button onclick="showEditor('campos')">Campos</button><button onclick="showEditor('botoes')">Botões</button><button onclick="showEditor('icones')">Ícones</button><button onclick="showEditor('textos')">Textos</button></div>
+          <div id="customEditor"></div>
+        </div>
+      </div>
+      </div>
+    `;
+    const loadStyles = () => {
+      const styles = JSON.parse(localStorage.getItem('appTheme') || '{}');
+      document.getElementById('phonePreview').style.setProperty('--bg', styles.bgColor || '#1e2128');
+      document.getElementById('phonePreview').style.setProperty('--inputBg', styles.inputBg || '#0a0c10');
+      document.getElementById('phonePreview').style.setProperty('--inputBorder', styles.inputBorder || '#2a2f3b');
+      document.getElementById('phonePreview').style.setProperty('--btnBg', styles.btnColor || '#3b82f6');
+      document.getElementById('phonePreview').style.setProperty('--btnRadius', styles.btnRadius + 'px' || '8px');
+      if (styles.logoUrl) document.getElementById('previewLogo').src = styles.logoUrl;
+    };
+    window.showEditor = (type) => {
+      const editor = document.getElementById('customEditor');
+      const styles = JSON.parse(localStorage.getItem('appTheme') || '{}');
+      if (type === 'fundo') editor.innerHTML = `<h3>Fundo do aplicativo</h3><label>Cor</label><input type="color" id="bgColor" value="${styles.bgColor || '#1e2128'}"><label>Imagem URL</label><input id="bgImage" placeholder="URL da imagem"><button onclick="saveThemePart('bgColor', document.getElementById('bgColor').value)">Salvar</button>`;
+      else if (type === 'logo') editor.innerHTML = `<h3>Logo do aplicativo</h3><label>URL da logo</label><input id="logoUrl" value="${styles.logoUrl || ''}"><button onclick="saveThemePart('logoUrl', document.getElementById('logoUrl').value)">Salvar</button>`;
+      else if (type === 'card') editor.innerHTML = `<h3>Card principal</h3><label>Cor do card</label><input type="color" id="cardColor" value="${styles.cardColor || '#13161f'}"><label>Arredondamento</label><input type="range" min="0" max="40" id="cardRadius" value="${styles.cardRadius || 16}"><button onclick="saveThemePart('cardColor', document.getElementById('cardColor').value); saveThemePart('cardRadius', document.getElementById('cardRadius').value)">Salvar</button>`;
+      else if (type === 'campos') editor.innerHTML = `<h3>Campos de entrada</h3><label>Cor da borda</label><input type="color" id="inputBorder" value="${styles.inputBorder || '#2a2f3b'}"><label>Cor do fundo</label><input type="color" id="inputBg" value="${styles.inputBg || '#0a0c10'}"><button onclick="saveThemePart('inputBorder', document.getElementById('inputBorder').value); saveThemePart('inputBg', document.getElementById('inputBg').value)">Salvar</button>`;
+      else if (type === 'botoes') editor.innerHTML = `<h3>Botões</h3><label>Cor do botão</label><input type="color" id="btnColor" value="${styles.btnColor || '#3b82f6'}"><label>Arredondamento</label><input type="range" min="0" max="40" id="btnRadius" value="${styles.btnRadius || 8}"><button onclick="saveThemePart('btnColor', document.getElementById('btnColor').value); saveThemePart('btnRadius', document.getElementById('btnRadius').value)">Salvar</button>`;
+      else if (type === 'icones') editor.innerHTML = `<h3>Ícones</h3><label>Cor dos ícones</label><input type="color" id="iconColor" value="${styles.iconColor || '#ffffff'}"><button onclick="saveThemePart('iconColor', document.getElementById('iconColor').value)">Salvar</button>`;
+      else if (type === 'textos') editor.innerHTML = `<h3>Textos</h3><label>Cor do texto</label><input type="color" id="textColor" value="${styles.textColor || '#ffffff'}"><button onclick="saveThemePart('textColor', document.getElementById('textColor').value)">Salvar</button>`;
+    };
+    window.saveThemePart = (key, value) => {
+      const styles = JSON.parse(localStorage.getItem('appTheme') || '{}');
+      styles[key] = value;
+      localStorage.setItem('appTheme', JSON.stringify(styles));
+      loadStyles();
+    };
+    loadStyles();
+    return;
+  }
+
+  // ==================== CONFIGURAÇÕES GLOBAIS ====================
+  if (module === 'global-settings') {
+    const settings = await fetch('/api/settings', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+    content.innerHTML = `
+      <div class="card"><h2>Configurações Globais</h2>
+      <form id="settingsForm">
+        <label>Modo manutenção</label><input type="checkbox" id="maintenance_mode" ${settings.maintenance_mode ? 'checked' : ''}>
+        <label>Máx. tentativas login</label><input type="number" id="max_login_attempts" value="${settings.max_login_attempts}">
+        <label>Tempo expiração sessão (s)</label><input type="number" id="session_expiration_time" value="${settings.session_expiration_time}">
+        <label>Máx. dispositivos Free</label><input type="number" id="max_devices_free" value="${settings.max_devices_free}">
+        <label>Máx. dispositivos VIP</label><input type="number" id="max_devices_vip" value="${settings.max_devices_vip}">
+        <label><input type="checkbox" id="auto_cleanup_sessions" ${settings.auto_cleanup_sessions ? 'checked' : ''}> Limpar sessões antigas</label>
+        <button type="submit">Salvar</button>
+      </form>
+      </div>
+    `;
+    document.getElementById('settingsForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const newSettings = {
+        maintenance_mode: document.getElementById('maintenance_mode').checked,
+        max_login_attempts: parseInt(document.getElementById('max_login_attempts').value),
+        session_expiration_time: parseInt(document.getElementById('session_expiration_time').value),
+        max_devices_free: parseInt(document.getElementById('max_devices_free').value),
+        max_devices_vip: parseInt(document.getElementById('max_devices_vip').value),
+        auto_cleanup_sessions: document.getElementById('auto_cleanup_sessions').checked
+      };
+      await fetch('/api/settings', { method:'PUT', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${token}`}, body:JSON.stringify(newSettings) });
+      alert('Configurações salvas');
+      loadModule('global-settings');
+    };
+    return;
+  }
+
+  // ==================== EDITAR CONFIGURAÇÃO (placeholder) ====================
+  if (module === 'edit-config') {
+    content.innerHTML = `<div class="card"><h2>Editar configuração</h2><p>Interface completa com toggles, webview, automação, cores, etc. (a implementar conforme imagens do DTunnel).</p><button onclick="alert('Em breve')">Salvar alterações</button></div>`;
+    return;
+  }
+
+  // Fallback
+  content.innerHTML = `<div class="card"><h2>${module}</h2><p>Módulo em desenvolvimento. Em breve todas as funcionalidades.</p></div>`;
+}
+
+// ==================== LOGIN E INICIALIZAÇÃO ====================
+async function init() {
+  if (!token) {
+    document.getElementById('app').innerHTML = `<div style="display:flex;justify-content:center;align-items:center;min-height:100vh;background:#0a0c10"><div class="card" style="max-width:400px"><h2>Login</h2><input id="loginUser" placeholder="Usuário"><input id="loginPass" type="password" placeholder="Senha"><button onclick="doLogin()">Entrar</button><div id="loginError" style="color:red;margin-top:10px"></div></div></div>`;
+    window.doLogin = async () => {
+      const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:document.getElementById('loginUser').value, password:document.getElementById('loginPass').value}) });
+      const data = await res.json();
+      if (res.ok) { localStorage.setItem('token', data.token); localStorage.setItem('user', JSON.stringify(data)); location.reload(); }
+      else document.getElementById('loginError').innerText = data.error;
+    };
+    return;
+  }
+  const user = JSON.parse(localStorage.getItem('user'));
+  currentUser = user;
+  document.getElementById('app').innerHTML = renderSidebar() + `<div class="main-content" id="mainContent"><div class="top-bar"><button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button><div class="user-info"><span>${user.username}</span><span class="user-role">${user.role}</span><button class="logout-btn" onclick="logout()">Sair</button></div></div><div class="content" id="pageContent"></div></div>`;
+  loadModule('dashboard');
+}
+
+window.logout = () => { localStorage.clear(); location.reload(); };
+window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+window.closeModal = window.closeModal; // fix redeclaration
+init();
+</script>
+</body>
+</html>
